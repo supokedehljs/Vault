@@ -21,19 +21,13 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Install Gradle
-      run: |
-        cd /tmp
-        wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
-        unzip -q gradle-8.4-bin.zip
-        export PATH=/tmp/gradle-8.4/bin:$PATH
-        gradle --version
-        
-    - name: Build Debug APK
-      run: |
-        export PATH=/tmp/gradle-8.4/bin:$PATH
-        gradle assembleDebug --no-daemon
-        ls -la app/build/outputs/apk/debug/
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v0.4.1
+      with:
+        gradle-version: 8.4
+        arguments: assembleDebug --no-daemon
+        build-root-directory: .
+        gradle-executable: .
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
