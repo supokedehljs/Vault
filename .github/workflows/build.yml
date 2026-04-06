@@ -9,23 +9,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '17'
+      - name: Set up JDK
+        run: sudo apt-get update && sudo apt-get install -y openjdk-17-jdk
       - name: Setup Android SDK
         run: |
-          mkdir -p /opt/android-sdk
-          echo "y" | sh -c "wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip"
-          unzip -q /tmp/cmdline-tools.zip -d /opt/android-sdk
-          mkdir -p /opt/android-sdk/cmdline-tools/latest
-          mv /opt/android-sdk/cmdline-tools/bin /opt/android-sdk/cmdline-tools/latest/
-          mv /opt/android-sdk/cmdline-tools/lib /opt/android-sdk/cmdline-tools/latest/
-          export ANDROID_HOME=/opt/android-sdk
+          mkdir -p $HOME/android-sdk
+          cd $HOME/android-sdk
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/bin cmdline-tools/latest/
+          mv cmdline-tools/lib cmdline-tools/latest/
+          export ANDROID_HOME=$HOME/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          echo "y" | sdkmanager --licenses
+          yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-      - run: ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v4
+      - name: Build
+        run: ./gradlew assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: APK
           path: app/build/outputs/apk/debug/app-debug.apk
