@@ -24,15 +24,18 @@ jobs:
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-      - name: Download Gradle wrapper JAR
-        run: |
-          mkdir -p gradle/wrapper
-          wget -q https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar
-          chmod +x gradlew
-      - name: Build
+      - name: Download Gradle and build
         env:
           ANDROID_HOME: ${{ env.HOME }}/android-sdk
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          mkdir -p gradle/wrapper
+          cd /tmp
+          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip -O gradle.zip
+          unzip -q gradle.zip
+          export PATH=/tmp/gradle-8.4/bin:$PATH
+          cd ${{ github.workspace }}
+          gradle wrapper --gradle-version 8.4
+          ./gradlew assembleDebug --no-daemon
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
