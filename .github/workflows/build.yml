@@ -17,18 +17,23 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'gradle'
         
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Download Gradle wrapper
+    - name: Install Gradle
       run: |
-        mkdir -p gradle/wrapper
-        curl -L -o gradle/wrapper/gradle-wrapper.jar https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.4/gradle-wrapper-8.4.jar
+        cd /tmp
+        wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
+        unzip -q gradle-8.4-bin.zip
+        export PATH=/tmp/gradle-8.4/bin:$PATH
+        gradle --version
         
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --no-daemon
+      run: |
+        export PATH=/tmp/gradle-8.4/bin:$PATH
+        gradle assembleDebug --no-daemon
+        ls -la app/build/outputs/apk/debug/
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
