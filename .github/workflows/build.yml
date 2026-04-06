@@ -22,11 +22,10 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Generate Gradle wrapper
+    - name: Download Gradle wrapper
       run: |
-        if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-          gradle wrapper --gradle-version 8.4
-        fi
+        mkdir -p gradle/wrapper
+        curl -L -o gradle/wrapper/gradle-wrapper.jar https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.4/gradle-wrapper-8.4.jar
         
     - name: Build Debug APK
       run: ./gradlew assembleDebug --no-daemon
